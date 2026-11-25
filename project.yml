@@ -1,0 +1,30 @@
+name: DragonRajaWeb
+options:
+  bundleIdPrefix: uk.vusagaming
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.4"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    GENERATE_INFOPLIST_FILE: NO
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+targets:
+  DragonRajaWeb:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: uk.vusagaming.dragonrajac.web
+        PRODUCT_NAME: DragonRajaWeb
+        INFOPLIST_FILE: Sources/Info.plist
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
+        ENABLE_BITCODE: NO
