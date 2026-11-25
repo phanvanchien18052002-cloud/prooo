@@ -1,1 +1,64 @@
+name: Build Unsigned IPA
 
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Prepare 1024x1024 AppIcon
+        run: |
+          ICON_PATH="Sources/Assets.xcassets/AppIcon.appiconset/AppIcon.png"
+          if [ -f "$ICON_PATH" ]; then
+            sips -z 1024 1024 "$ICON_PATH" --out "$ICON_PATH"
+          fi
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned .app
+        run: |
+          xcodebuild \
+            -project DragonRajaWeb.xcodeproj \
+            -scheme DragonRajaWeb \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            clean build
+
+      - name: Package .ipa
+        run: |
+          APP_PATH="build/Build/Products/Release-iphoneos/DragonRajaWeb.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Error: $APP_PATH not found"
+            exit 1
+          fi
+          mkdir -p dist/Payload
+          cp -R "$APP_PATH" dist/Payload/
+          cd dist
+          zip -qry DragonRaja-Cassell-Web-unsigned.ipa Payload
+          ls -lh DragonRaja-Cassell-Web-unsigned.ipa
+
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DragonRaja-Cassell-Web-IPA
+          path: dist/DragonRaja-Cassell-Web-unsigned.ipa
+          retention-days: 30
